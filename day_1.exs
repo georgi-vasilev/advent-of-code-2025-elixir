@@ -16,10 +16,8 @@ defmodule Day1 do
     |> Enum.to_list()
   end
 
-  defp get_count(map) when map_size(map) == 0, do: 0
-
   defp get_count(map) do
-    max_count = map |> Map.values() |> Enum.max()
+    max_count = map |> Map.values() |> Enum.max(fn -> 0 end)
   end
 
   defp parse_input([], map, dial), do: map
@@ -37,4 +35,3 @@ defmodule Day1 do
 
   defp get_rotations_value(<<"R", rest::binary>>), do: rest
 end
-
