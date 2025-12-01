@@ -1,10 +1,10 @@
 defmodule Day1 do
   @dial 50
+  @file_name "input_day_1"
 
   def run do
-    read_from_file("input_day_1")
-    |> parse_input(%{}, @dial)
-    |> get_count()
+    read_from_file(@file_name)
+    |> parse_input(0, @dial)
   end
 
   defp read_from_file(filename) do
@@ -16,22 +16,43 @@ defmodule Day1 do
     |> Enum.to_list()
   end
 
-  defp get_count(map) do
-    max_count = map |> Map.values() |> Enum.max(fn -> 0 end)
+  defp parse_input([], passes, dial), do: passes
+
+  defp parse_input([head | tail], passes, dial) do
+    rotations = head |> get_rotations_value() |> String.to_integer()
+    direction = if String.starts_with?(head, "L"), do: -1, else: 1
+
+    dist_to_zero =
+      if direction == 1 do
+        if dial == 0, do: 100, else: 100 - dial
+      else
+        if dial == 0, do: 100, else: dial
+      end
+
+    new_passes =
+      if rotations >= dist_to_zero do
+        passes + 1 + trunc((rotations - dist_to_zero) / 100)
+      else
+        passes
+      end
+
+    new_dial = rem(rem(dial + direction * rotations, 100) + 100, 100)
+
+    parse_input(tail, new_passes, new_dial)
   end
 
-  defp parse_input([], map, dial), do: map
+  defp zero_crosses(start, delta) do
+    real_start = start
+    real_end = start + delta
 
-  defp parse_input([head | tail], map, dial) do
-    rotations = head |> get_rotations_value() |> String.to_integer()
-    delta = if String.starts_with?(head, "L"), do: -rotations, else: rotations
-    new_dial = Integer.mod(dial + delta, 100)
-    map = Map.update(map, new_dial, 1, fn count -> count + 1 end)
+    start_block = div(real_start, 100)
+    end_block = div(real_end, 100)
 
-    parse_input(tail, map, new_dial)
+    abs(end_block - start_block)
   end
 
   defp get_rotations_value(<<"L", rest::binary>>), do: rest
 
   defp get_rotations_value(<<"R", rest::binary>>), do: rest
 end
+
