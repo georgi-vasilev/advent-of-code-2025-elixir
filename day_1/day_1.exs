@@ -55,4 +55,3 @@ defmodule Day1 do
 
   defp get_rotations_value(<<"R", rest::binary>>), do: rest
 end
-
